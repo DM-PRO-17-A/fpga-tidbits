@@ -32,3 +32,4 @@ emu-*/
 vivado*.jou
 .swo
 .swp
+.idea/
