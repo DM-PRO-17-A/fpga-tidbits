@@ -10,12 +10,14 @@ bool Run_RFQueue(WrapperRegDriver * platform) {
     TestRFQueue rf(platform);
 
     rf.set_regFileIF_cmd_bits_regID(0);
-    rf.set_regFileIF_cmd_bits_read(0);
     rf.set_regFileIF_cmd_bits_write(1);
-    rf.set_regFileIF_cmd_bits_writeData(5);
-    rf.set_regFileIF_cmd_valid(1);
-    rf.set_regFileIF_cmd_bits_read(1);
-    rf.set_regFileIF_cmd_valid(0);
+    for(int i = 0; i < 32; i++) {
+        rf.set_regFileIF_cmd_bits_writeData(i);
+        rf.set_regFileIF_cmd_valid(i % 2);
+    }
+    //rf.set_regFileIF_cmd_bits_writeData(5);
+    //rf.set_regFileIF_cmd_valid(1);
+    //rf.set_regFileIF_cmd_bits_read(1);
 
     cout << "Elements in queue are: " << rf.get_queue_count() << endl;
     rf.set_queue_output_ready(1);

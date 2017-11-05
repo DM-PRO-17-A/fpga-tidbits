@@ -31,8 +31,30 @@ class TestRFQueue(p: PlatformWrapperParams) extends GenericAccelerator(p) {
     io.regFileIF <> regFile.extIF
 
     testQueue.io.enq.bits := io.regFileIF.readData.bits
+    testQueue.io.enq.valid := io.regFileIF.readData.valid
 
-    testQueue.io.enq.valid := io.regFileIF.cmd.valid //&& io.regFileIF.cmd.bits.write
+
+    val toggle_valid = Reg(init=Bool(false))
+    val last_valid = Reg(init=Bool(false), next=Mux(toggle_valid === io.regFileIF.cmd.valid, Bool(false), Bool(true)))
+    //val current_valid = Reg(init=Bool(false), next=Mux())
+    //last_valid := io.regFileIF.cmd.valid
+    regFile.extIF.cmd.bits.read := last_valid
+
+    /*
+    when (toggle_valid != io.regFileIF.cmd.valid) {
+        //toggle_valid := ~toggle_valid
+        regFile.extIF.cmd.bits.read := Bool(true)
+    }     .otherwise {
+        regFile.extIF.cmd.bits.read := Bool(false)
+    }
+    */
+
+    toggle_valid := io.regFileIF.cmd.valid
+
+    //printf("Her kommer data. Toggle: %b RegFileValid: %b Whatever: %b\n", toggle_valid, io.regFileIF.cmd.valid, testQueue.io.enq.bits)
+    printf("Last Valid: %b Read Data Valid: %b Read Data bits: %b TestIODeq: %b, QueueCount: %b  \n", last_valid, io.regFileIF.readData.valid, io.regFileIF.readData.bits, testQueue.io.deq.bits, io.queue_count)
+    //printf("Her kommer data. Toggle: %b Valid: %b Whatever: %b\n", io.regFileIF.cmd.valid, testQueue.io.enq.valid, testQueue.io.enq.bits)
+
 
     io.queue_output <> testQueue.io.deq
     testQueue.io.count <> io.queue_count
