@@ -52,7 +52,7 @@ class TestRFQueue(p: PlatformWrapperParams) extends GenericAccelerator(p) {
     toggle_valid := io.regFileIF.cmd.valid
 
     //printf("Her kommer data. Toggle: %b RegFileValid: %b Whatever: %b\n", toggle_valid, io.regFileIF.cmd.valid, testQueue.io.enq.bits)
-    printf("Last Valid: %b Read Data Valid: %b Read Data bits: %b TestIODeq: %b, QueueCount: %b  \n", last_valid, io.regFileIF.readData.valid, io.regFileIF.readData.bits, testQueue.io.deq.bits, io.queue_count)
+    printf("Last Valid: %b Read Data Valid: %b Read Data bits: %d TestIODeq: %d, QueueCount: %d  \n", last_valid, io.regFileIF.readData.valid, io.regFileIF.readData.bits, testQueue.io.deq.bits, io.queue_count)
     //printf("Her kommer data. Toggle: %b Valid: %b Whatever: %b\n", io.regFileIF.cmd.valid, testQueue.io.enq.valid, testQueue.io.enq.bits)
 
 

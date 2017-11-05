@@ -12,8 +12,8 @@ bool Run_RFQueue(WrapperRegDriver * platform) {
     rf.set_regFileIF_cmd_bits_regID(0);
     rf.set_regFileIF_cmd_bits_write(1);
     for(int i = 0; i < 32; i++) {
-        rf.set_regFileIF_cmd_bits_writeData(i);
-        rf.set_regFileIF_cmd_valid(i % 2);
+        rf.set_regFileIF_cmd_bits_writeData(i+1);
+        rf.set_regFileIF_cmd_valid((i+1) % 2);
     }
     //rf.set_regFileIF_cmd_bits_writeData(5);
     //rf.set_regFileIF_cmd_valid(1);
