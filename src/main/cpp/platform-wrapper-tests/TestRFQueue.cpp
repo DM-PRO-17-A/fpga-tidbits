@@ -9,12 +9,8 @@ using namespace std;
 bool Run_RFQueue(WrapperRegDriver * platform) {
     TestRFQueue rf(platform);
 
-    rf.set_regFileIF_cmd_bits_regID(0);
-    rf.set_regFileIF_cmd_bits_write(1);
     for(int i = 0; i < 32; i++) {
-        rf.set_regFileIF_cmd_valid(0);
-        rf.set_regFileIF_cmd_bits_writeData(i+1);
-        rf.set_regFileIF_cmd_valid(1);
+        rf.set_input_data(i+1);
         rf.set_input_pulse((i+1)%2);
     }
     //rf.set_regFileIF_cmd_bits_writeData(5);

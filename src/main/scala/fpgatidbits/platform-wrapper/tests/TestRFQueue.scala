@@ -9,33 +9,32 @@ class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec
     val numMemPorts = 0
     val idBits = log2Up(num_of_regs)
     val io = new GenericAcceleratorIF(numMemPorts, p) {
-        val regFileIF = new RegFileSlaveIF(idBits, dataWidth)
+        val input_data = UInt(INPUT,width=dataWidth)
         val input_pulse = Bool(INPUT)
 
         //val queue_input = Flipped(Decoupled(UInt(INPUT, width = dataWidth)))
         val queue_output = (Decoupled(UInt(OUTPUT, width = dataWidth)))       //Valid and bits are outputs.count
         val queue_count = UInt(OUTPUT)
         val queue_full = Bool(OUTPUT)
-
     }
 
     val testQueue = Module(new FPGAQueue(UInt(width = dataWidth), entries = queueDepth))
     val regFile = Module(new RegFile(2, idBits, dataWidth)).io
-
-
-    io.regFileIF <> regFile.extIF
-
-    testQueue.io.enq.bits := io.regFileIF.readData.bits
-    testQueue.io.enq.valid := io.regFileIF.readData.valid
-
     val toggle_pulse = Reg(init=Bool(false))
-    val next_ready = Reg(init=Bool(false), next=Mux(toggle_pulse === io.input_pulse, Bool(false), Bool(true)))
-
-    regFile.extIF.cmd.bits.read := next_ready
+    val next_read = Reg(init=Bool(false), next=Bool(!(toggle_pulse === io.input_pulse)))
 
     toggle_pulse := io.input_pulse
 
-    printf("Next ready: %b Input pulse: %b Read Data bits: %d TestIODeq: %d, QueueCount: %d, QFull: %b  \n", next_ready, io.input_pulse, io.regFileIF.readData.bits, testQueue.io.deq.bits, io.queue_count, io.queue_full)
+    regFile.extIF.cmd.bits.regID := UInt(0)
+    regFile.extIF.cmd.bits.writeData := io.input_data
+    regFile.extIF.cmd.bits.read := next_read
+    regFile.extIF.cmd.bits.write := UInt(1)
+    regFile.extIF.cmd.valid := (toggle_pulse === io.input_pulse)
+
+    testQueue.io.enq.bits := regFile.extIF.readData.bits
+    testQueue.io.enq.valid := next_read
+
+    printf("Next ready: %b Input pulse: %b Read Data bits: %d  EnQ: %d TestIODeq: %d, QueueCount: %d, QFull: %b  \n", next_read, io.input_pulse, io.input_data, testQueue.io.enq.bits, testQueue.io.deq.bits, io.queue_count, io.queue_full)
 
     io.queue_output <> testQueue.io.deq
     testQueue.io.count <> io.queue_count
@@ -47,6 +46,7 @@ class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec
 
 
 class RegFileTests(c: TestRFQueue) extends Tester(c){
+    /*
     val regFile = c.io.regFileIF
 
     poke(regFile.cmd.bits.regID, 0)
@@ -75,5 +75,5 @@ class RegFileTests(c: TestRFQueue) extends Tester(c){
     peek(c.io.queue_output)
     step(1)
     peek(c.io.queue_output)
-
+    */
 }
