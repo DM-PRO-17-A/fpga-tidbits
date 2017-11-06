@@ -114,7 +114,7 @@ object MainObj {
     "TestGather" -> {p => new TestGather(p)},
     "TestFullyConnected" -> {p => new TestFullyConnected(p)},
     "TestDotProduct" -> {p => new TestDotProduct(p)},
-    "TestRFQueue" -> {p => new TestRFQueue(p)}
+    "TestRFQueue" -> {p => new TestRFQueue(p, 32, 32, 4, 2)}
   )
 
   val platformMap: PlatformMap = Map(
