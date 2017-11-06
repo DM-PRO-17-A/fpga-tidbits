@@ -5,29 +5,22 @@ import fpgatidbits.PlatformWrapper._
 import fpgatidbits.regfile._
 import fpgatidbits.ocm._
 
-class TestRFQueue(p: PlatformWrapperParams) extends GenericAccelerator(p) {
-    val dataWidth = 32
-    val queueDepth = 32
-    val vec_fill_size = 4
-
+class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec_fill_size: Int, num_of_regs: Int) extends GenericAccelerator(p) {
     val numMemPorts = 0
-    val idBits = log2Up(16)
-    val dataBits = 32
+    val idBits = log2Up(num_of_regs)
     val io = new GenericAcceleratorIF(numMemPorts, p) {
-        val regFileIF = new RegFileSlaveIF(idBits, dataBits)
+        val regFileIF = new RegFileSlaveIF(idBits, dataWidth)
         val input_pulse = Bool(INPUT)
 
-        val queue_full = Bool(OUTPUT)
         //val queue_input = Flipped(Decoupled(UInt(INPUT, width = dataWidth)))
         val queue_output = (Decoupled(UInt(OUTPUT, width = dataWidth)))       //Valid and bits are outputs.count
         val queue_count = UInt(OUTPUT)
+        val queue_full = Bool(OUTPUT)
 
     }
 
     val testQueue = Module(new FPGAQueue(UInt(width = dataWidth), entries = queueDepth))
-
-    //RegFile(numRegs: Int, idBits: Int, dataBits: Int) - databits = width
-    val regFile = Module(new RegFile(2, idBits, dataBits)).io
+    val regFile = Module(new RegFile(2, idBits, dataWidth)).io
 
 
     io.regFileIF <> regFile.extIF
