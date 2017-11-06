@@ -15,7 +15,9 @@ class TestRFQueue(p: PlatformWrapperParams) extends GenericAccelerator(p) {
     val dataBits = 32
     val io = new GenericAcceleratorIF(numMemPorts, p) {
         val regFileIF = new RegFileSlaveIF(idBits, dataBits)
+        val input_pulse = Bool(INPUT)
 
+        val queue_full = Bool(OUTPUT)
         //val queue_input = Flipped(Decoupled(UInt(INPUT, width = dataWidth)))
         val queue_output = (Decoupled(UInt(OUTPUT, width = dataWidth)))       //Valid and bits are outputs.count
         val queue_count = UInt(OUTPUT)
@@ -33,31 +35,18 @@ class TestRFQueue(p: PlatformWrapperParams) extends GenericAccelerator(p) {
     testQueue.io.enq.bits := io.regFileIF.readData.bits
     testQueue.io.enq.valid := io.regFileIF.readData.valid
 
+    val toggle_pulse = Reg(init=Bool(false))
+    val next_ready = Reg(init=Bool(false), next=Mux(toggle_pulse === io.input_pulse, Bool(false), Bool(true)))
 
-    val toggle_valid = Reg(init=Bool(false))
-    val last_valid = Reg(init=Bool(false), next=Mux(toggle_valid === io.regFileIF.cmd.valid, Bool(false), Bool(true)))
-    //val current_valid = Reg(init=Bool(false), next=Mux())
-    //last_valid := io.regFileIF.cmd.valid
-    regFile.extIF.cmd.bits.read := last_valid
+    regFile.extIF.cmd.bits.read := next_ready
 
-    /*
-    when (toggle_valid != io.regFileIF.cmd.valid) {
-        //toggle_valid := ~toggle_valid
-        regFile.extIF.cmd.bits.read := Bool(true)
-    }     .otherwise {
-        regFile.extIF.cmd.bits.read := Bool(false)
-    }
-    */
+    toggle_pulse := io.input_pulse
 
-    toggle_valid := io.regFileIF.cmd.valid
-
-    //printf("Her kommer data. Toggle: %b RegFileValid: %b Whatever: %b\n", toggle_valid, io.regFileIF.cmd.valid, testQueue.io.enq.bits)
-    printf("Last Valid: %b Read Data Valid: %b Read Data bits: %d TestIODeq: %d, QueueCount: %d  \n", last_valid, io.regFileIF.readData.valid, io.regFileIF.readData.bits, testQueue.io.deq.bits, io.queue_count)
-    //printf("Her kommer data. Toggle: %b Valid: %b Whatever: %b\n", io.regFileIF.cmd.valid, testQueue.io.enq.valid, testQueue.io.enq.bits)
-
+    printf("Next ready: %b Input pulse: %b Read Data bits: %d TestIODeq: %d, QueueCount: %d, QFull: %b  \n", next_ready, io.input_pulse, io.regFileIF.readData.bits, testQueue.io.deq.bits, io.queue_count, io.queue_full)
 
     io.queue_output <> testQueue.io.deq
     testQueue.io.count <> io.queue_count
+    io.queue_full := !testQueue.io.enq.ready
 
 
 

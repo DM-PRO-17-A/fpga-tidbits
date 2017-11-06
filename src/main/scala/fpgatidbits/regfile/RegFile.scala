@@ -53,8 +53,8 @@ class RegFile(numRegs: Int, idBits: Int, dataBits: Int) extends Module {
   val regCommand = Reg(next = io.extIF.cmd.bits)
   val regDoCmd = Reg(init = Bool(false), next = io.extIF.cmd.valid)
 
-  //val hasExtReadCommand = (regDoCmd && regCommand.read)
-  val hasExtReadCommand = regCommand.read
+  val hasExtReadCommand = (regDoCmd && regCommand.read)
+  //val hasExtReadCommand = regCommand.read
   val hasExtWriteCommand = (regDoCmd && regCommand.write)
 
   // register read logic
