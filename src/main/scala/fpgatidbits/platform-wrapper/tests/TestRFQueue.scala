@@ -2,46 +2,48 @@ package fpgatidbits.Testbenches
 
 import Chisel._
 import fpgatidbits.PlatformWrapper._
-import fpgatidbits.regfile._
 import fpgatidbits.ocm._
 
-class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec_fill_size: Int, num_of_regs: Int) extends GenericAccelerator(p) {
-    val numMemPorts = 0
-    val idBits = log2Up(num_of_regs)
-    val io = new GenericAcceleratorIF(numMemPorts, p) {
-        val input_data = UInt(INPUT,width=dataWidth)
-        val input_pulse = Bool(INPUT)
 
-        /*
-        val queue_input = Flipped(Decoupled(UInt(INPUT, width = dataWidth)))
-        val queue_output = (Decoupled(UInt(OUTPUT, width = dataWidth)))       //Valid and bits are outputs.count
-        val queue_count = UInt(OUTPUT)
+class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends GenericAccelerator(p) {
+    val numMemPorts = 0
+    val io = new GenericAcceleratorIF(numMemPorts, p) {
+        val input_data = Vec.fill(vec_fill_size){UInt(INPUT,width=dataWidth)}
+        val input_pulse = Bool(INPUT)
         val queue_full = Bool(OUTPUT)
-        */
+        val queue_count = UInt(OUTPUT)
+        val queue_output = (Decoupled(Vec.fill(vec_fill_size){UInt(OUTPUT, width = dataWidth)}))       //Valid and bits are outputs.count
+
     }
 
-    val testQueue = Module(new FPGAQueue(UInt(width = dataWidth), entries = queueDepth))
+    val testQueue = Module(new FPGAQueue(Vec.fill(vec_fill_size){UInt(width = dataWidth)}, entries = queueDepth))
     val regPulse = Reg(next=io.input_pulse)
     val toggle_pulse = Reg(next=io.input_pulse)
     val next_read = Reg(next=Bool((toggle_pulse != io.input_pulse)))
-    val count = Reg(init=UInt(0))
 
     testQueue.io.enq.bits := io.input_data
-    //testQueue.io.enq.valid := !regPulse && io.input_pulse
-    testQueue.io.enq.valid := next_read
-    testQueue.io.deq.ready := Bool(false)
+    testQueue.io.enq.valid := !regPulse && io.input_pulse
+    //testQueue.io.enq.valid := next_read
+    io.queue_full := (testQueue.io.count === UInt(queueDepth - 1))
+    testQueue.io.count <> io.queue_count
+
+    //io.queue_output <> testQueue.io.deq
+    //io.queue_output.ready <> testQueue.io.deq.ready
+    testQueue.io.deq.ready := io.queue_output.ready
+    io.queue_output.bits := testQueue.io.deq.bits
+    io.queue_output.valid := testQueue.io.deq.valid
+
+    printf("InputValid: %d, InputReady: %d, OutputValid: %d, OutputReady: %d, QQ: %d\n", testQueue.io.enq.valid, testQueue.io.enq.ready, testQueue.io.deq.valid, testQueue.io.deq.ready, testQueue.io.count )
+
 
     when(testQueue.io.enq.valid && testQueue.io.enq.ready) {
-        count := count + UInt(1,width=8)
-        printf("New element written to queue: %x, %d, %x\n", testQueue.io.enq.bits, testQueue.io.count, testQueue.io.deq.bits)
+        //printf("New element written to queue: %d, %d, %d, %b\n", testQueue.io.enq.bits(0), testQueue.io.count, testQueue.io.deq.bits(0), io.queue_full)
     }
-    when(testQueue.io.count === UInt(32)){
-        testQueue.io.deq.ready := Bool(true)
-    }
-    printf("%d\n", count)
+
+    //printf("%d\n", count)
     when(testQueue.io.deq.ready){
-        printf("Element %d popped from queue, length:%d\n", testQueue.io.deq.bits, testQueue.io.count)
-        printf("Valid: %d\n", testQueue.io.deq.valid)
+        //printf("Element %d popped from queue, length:%d\n", testQueue.io.deq.bits(0), testQueue.io.count)
+        //printf("Valid: %d\n", testQueue.io.deq.valid)
     }
 
     

@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <typeinfo>
 using namespace std;
 
 #include "TestRFQueue.hpp"
@@ -6,33 +9,61 @@ using namespace std;
 
 
 
-bool Run_RFQueue(WrapperRegDriver * platform) {
+bool Run_RFQueue(WrapperRegDriver * platform, int imageList[3072]) {
     TestRFQueue rf(platform);
 
-    for(int i = 0; i < 32; i++) {
-        rf.set_input_data(i+1);
-        //rf.set_input_pulse(1);
-        //rf.set_input_pulse(0);
-        rf.set_input_pulse((i+1)%2);
-    }
-    //rf.set_regFileIF_cmd_bits_writeData(5);
-    //rf.set_regFileIF_cmd_valid(1);
-    //rf.set_regFileIF_cmd_bits_read(1);
-/*
-    cout << "Elements in queue are: " << rf.get_queue_count() << endl;
-    rf.set_queue_output_ready(1);
-    for (int i = 0; i <= rf.get_queue_count(); i++) {
-        cout << "Printing elements in queue: " << rf.get_queue_output_bits() << endl;
+    unsigned int pixel_adder[8];
+    for(int i = 0; i < 3072; i += 8) {
 
+        while (rf.get_queue_full()) {
+            //Waits for space in the Queue.
+            goto slutt;
+        }
+        for(int p = 0; p < 8; p++) {
+            pixel_adder[p] = imageList[i+p];
+        }
+        rf.set_input_data_0(pixel_adder[0]);
+        rf.set_input_data_1(pixel_adder[1]);
+        rf.set_input_data_2(pixel_adder[2]);
+        rf.set_input_data_3(pixel_adder[3]);
+        rf.set_input_data_4(pixel_adder[4]);
+        rf.set_input_data_5(pixel_adder[5]);
+        rf.set_input_data_6(pixel_adder[6]);
+        rf.set_input_data_7(pixel_adder[7]);
+        rf.set_input_pulse(1);
+        rf.set_input_pulse(0);
     }
-*/
+    slutt: ;
+    /*
+    while(rf.get_queue_count() > 0) {
+        rf.set_queue_output_ready(1);
+    }
+    */
 }
+
 
 int main()
 {
+  int x;
+  int imageList[3072];
+  int index = 0;
+
+  ifstream testFile;
+  testFile.open("/home/embrik/Documents/vector.txt");
+
+  if (!testFile) {
+      cout << "Unable to open file";
+      exit(1); // terminate with error
+  }
+
+  while (testFile >> x) {
+      imageList[index] = x;
+      index ++;
+  }
+
   WrapperRegDriver * platform = initPlatform();
 
-  Run_RFQueue(platform);
+  Run_RFQueue(platform, imageList);
 
   deinitPlatform(platform);
 
