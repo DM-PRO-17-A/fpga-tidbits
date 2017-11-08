@@ -11,19 +11,21 @@ bool Run_RFQueue(WrapperRegDriver * platform) {
 
     for(int i = 0; i < 32; i++) {
         rf.set_input_data(i+1);
+        //rf.set_input_pulse(1);
+        //rf.set_input_pulse(0);
         rf.set_input_pulse((i+1)%2);
     }
     //rf.set_regFileIF_cmd_bits_writeData(5);
     //rf.set_regFileIF_cmd_valid(1);
     //rf.set_regFileIF_cmd_bits_read(1);
-
+/*
     cout << "Elements in queue are: " << rf.get_queue_count() << endl;
     rf.set_queue_output_ready(1);
     for (int i = 0; i <= rf.get_queue_count(); i++) {
         cout << "Printing elements in queue: " << rf.get_queue_output_bits() << endl;
 
     }
-
+*/
 }
 
 int main()

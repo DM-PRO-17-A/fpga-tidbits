@@ -12,19 +12,40 @@ class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec
         val input_data = UInt(INPUT,width=dataWidth)
         val input_pulse = Bool(INPUT)
 
-        //val queue_input = Flipped(Decoupled(UInt(INPUT, width = dataWidth)))
+        /*
+        val queue_input = Flipped(Decoupled(UInt(INPUT, width = dataWidth)))
         val queue_output = (Decoupled(UInt(OUTPUT, width = dataWidth)))       //Valid and bits are outputs.count
         val queue_count = UInt(OUTPUT)
         val queue_full = Bool(OUTPUT)
+        */
     }
 
     val testQueue = Module(new FPGAQueue(UInt(width = dataWidth), entries = queueDepth))
-    val regFile = Module(new RegFile(2, idBits, dataWidth)).io
-    val toggle_pulse = Reg(init=Bool(false))
-    val next_read = Reg(init=Bool(false), next=Bool(!(toggle_pulse === io.input_pulse)))
+    val regPulse = Reg(next=io.input_pulse)
+    val toggle_pulse = Reg(next=io.input_pulse)
+    val next_read = Reg(next=Bool((toggle_pulse != io.input_pulse)))
+    val count = Reg(init=UInt(0))
 
-    toggle_pulse := io.input_pulse
+    testQueue.io.enq.bits := io.input_data
+    //testQueue.io.enq.valid := !regPulse && io.input_pulse
+    testQueue.io.enq.valid := next_read
+    testQueue.io.deq.ready := Bool(false)
 
+    when(testQueue.io.enq.valid && testQueue.io.enq.ready) {
+        count := count + UInt(1,width=8)
+        printf("New element written to queue: %x, %d, %x\n", testQueue.io.enq.bits, testQueue.io.count, testQueue.io.deq.bits)
+    }
+    when(testQueue.io.count === UInt(32)){
+        testQueue.io.deq.ready := Bool(true)
+    }
+    printf("%d\n", count)
+    when(testQueue.io.deq.ready){
+        printf("Element %d popped from queue, length:%d\n", testQueue.io.deq.bits, testQueue.io.count)
+        printf("Valid: %d\n", testQueue.io.deq.valid)
+    }
+
+    
+/*
     regFile.extIF.cmd.bits.regID := UInt(0)
     regFile.extIF.cmd.bits.writeData := io.input_data
     regFile.extIF.cmd.bits.read := next_read
@@ -34,14 +55,10 @@ class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec
     testQueue.io.enq.bits := regFile.extIF.readData.bits
     testQueue.io.enq.valid := next_read
 
-    printf("Next ready: %b Input pulse: %b Read Data bits: %d  EnQ: %d TestIODeq: %d, QueueCount: %d, QFull: %b  \n", next_read, io.input_pulse, io.input_data, testQueue.io.enq.bits, testQueue.io.deq.bits, io.queue_count, io.queue_full)
-
     io.queue_output <> testQueue.io.deq
     testQueue.io.count <> io.queue_count
     io.queue_full := !testQueue.io.enq.ready
-
-
-
+    */
 }
 
 
