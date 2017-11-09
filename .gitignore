@@ -30,6 +30,6 @@ emulator/
 verilator/
 emu-*/
 vivado*.jou
-.swo
-.swp
+*.swo
+*.swp
 .idea/

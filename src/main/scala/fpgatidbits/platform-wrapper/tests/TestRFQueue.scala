@@ -33,7 +33,7 @@ class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec
     io.queue_output.bits := testQueue.io.deq.bits
     io.queue_output.valid := testQueue.io.deq.valid
 
-    printf("InputValid: %d, InputReady: %d, OutputValid: %d, OutputReady: %d, QQ: %d\n", testQueue.io.enq.valid, testQueue.io.enq.ready, testQueue.io.deq.valid, testQueue.io.deq.ready, testQueue.io.count )
+    //printf("InputValid: %d, InputReady: %d, OutputValid: %d, OutputReady: %d, QQ: %d\n", testQueue.io.enq.valid, testQueue.io.enq.ready, testQueue.io.deq.valid, testQueue.io.deq.ready, testQueue.io.count )
 
 
     when(testQueue.io.enq.valid && testQueue.io.enq.ready) {
@@ -41,26 +41,10 @@ class TestRFQueue(p: PlatformWrapperParams, dataWidth: Int, queueDepth: Int, vec
     }
 
     //printf("%d\n", count)
-    when(testQueue.io.deq.ready){
-        //printf("Element %d popped from queue, length:%d\n", testQueue.io.deq.bits(0), testQueue.io.count)
+    when(testQueue.io.deq.ready && testQueue.io.deq.valid){
+        printf("Popped (%d, %d, %d, %d, %d, %d, %d, %d), len:%d\n", testQueue.io.deq.bits(0), testQueue.io.deq.bits(1), testQueue.io.deq.bits(2), testQueue.io.deq.bits(3), testQueue.io.deq.bits(4), testQueue.io.deq.bits(5), testQueue.io.deq.bits(6), testQueue.io.deq.bits(7), testQueue.io.count)
         //printf("Valid: %d\n", testQueue.io.deq.valid)
     }
-
-    
-/*
-    regFile.extIF.cmd.bits.regID := UInt(0)
-    regFile.extIF.cmd.bits.writeData := io.input_data
-    regFile.extIF.cmd.bits.read := next_read
-    regFile.extIF.cmd.bits.write := UInt(1)
-    regFile.extIF.cmd.valid := (toggle_pulse === io.input_pulse)
-
-    testQueue.io.enq.bits := regFile.extIF.readData.bits
-    testQueue.io.enq.valid := next_read
-
-    io.queue_output <> testQueue.io.deq
-    testQueue.io.count <> io.queue_count
-    io.queue_full := !testQueue.io.enq.ready
-    */
 }
 
 
