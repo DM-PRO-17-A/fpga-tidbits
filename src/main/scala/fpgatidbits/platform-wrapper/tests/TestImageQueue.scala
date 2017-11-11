@@ -18,28 +18,27 @@ class TestImageQueue (p: PlatformWrapperParams) extends GenericAccelerator(p) {
         val full = Bool(OUTPUT)
     }
 
-    val queue = Module(new ImageQueue(data_width, queue_depth, vec_size, true)).io
+    val queue = Module(new ImageQueue(data_width, queue_depth, vec_size)).io
 
     queue.input_data <> io.input_data
-    queue.pulse <> io.input_pulse
+    queue.input_pulse <> io.input_pulse
     queue.full <> io.full
 
     val pulse_reg = Reg(next=io.input_pulse)
-    val counter = Reg(init=UInt(width=8))
+    val counter = Reg(init=UInt(width=10))
     when(!io.input_pulse && pulse_reg){
         counter := counter + UInt(1)
-        printf("counter %d\n", counter)
+        //printf("counter %d\n", counter)
     }
-    
-    println("kdjfskdfhskdfhskdjfskdjfhskdjhfskjdhf")
-    println(queue_depth)
-    when(counter >= UInt(62)){
+
+    //println(queue_depth)
+    when(counter >= UInt(384)){
         queue.output_data.ready := Bool(true)
         when(queue.output_data.valid){
-            printf("Output: %d\n", queue.output_data.bits(0))
+            //printf("Output: %d\n", queue.output_data.bits(0))
         }
     }.otherwise{
         queue.output_data.ready := Bool(false)
     }
-    printf("V: %b R: %b D: %d S: %d\n", queue.output_data.valid, queue.output_data.ready, queue.output_data.bits(0), queue.count)
+    printf("V: %b R: %b D: %d \n", queue.output_data.valid, queue.output_data.ready, queue.output_data.bits(0))
 }
