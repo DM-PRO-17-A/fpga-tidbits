@@ -47,7 +47,7 @@ int main()
   int index = 0;
 
   ifstream testFile;
-  testFile.open("/home/christoffer/Documents/vector.txt");
+  testFile.open("/home/embrik/Documents/vector.txt");
 
   if (!testFile) {
       cout << "Unable to open file";

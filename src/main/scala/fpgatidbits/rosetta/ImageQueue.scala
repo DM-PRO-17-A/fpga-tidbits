@@ -25,12 +25,15 @@ class ImageQueue(dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends Mo
 
     io.output_data <> queue.io.deq
 
-    /*
+
     when(queue.io.enq.valid && queue.io.enq.ready){
-        printf("ADD: %d, len: %d\n", queue.io.enq.bits(0), queue.io.count)
+        printf("ADD: (%d, %d, %d, %d, %d, %d, %d, %d), len: %d\n", queue.io.enq.bits(0), queue.io.enq.bits(1), queue.io.enq.bits(2), queue.io.enq.bits(3), queue.io.enq.bits(4),
+            queue.io.enq.bits(5), queue.io.enq.bits(6), queue.io.enq.bits(7), queue.io.count)
     }
+
     when(queue.io.deq.valid && queue.io.deq.ready){
-        printf("POP: %d, len: %d\n", queue.io.deq.bits(0), queue.io.count)
-    }*/
+        printf("POP: (%d, %d, %d, %d, %d, %d, %d, %d), len: %d\n", queue.io.enq.bits(0), queue.io.enq.bits(1), queue.io.enq.bits(2), queue.io.enq.bits(3), queue.io.enq.bits(4),
+            queue.io.enq.bits(5), queue.io.enq.bits(6), queue.io.enq.bits(7), queue.io.count)
+    }
     //printf("EV: %b EB: %d, len: %d\n", queue.io.enq.valid, queue.io.enq.bits(0), queue.io.count)
 }

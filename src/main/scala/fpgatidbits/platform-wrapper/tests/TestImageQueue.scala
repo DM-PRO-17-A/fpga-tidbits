@@ -8,7 +8,7 @@ import fpgatidbits.ocm._
 class TestImageQueue (p: PlatformWrapperParams) extends GenericAccelerator(p) {
     val vec_size = 8
     val data_width = 8
-    val queue_depth = 64
+    val queue_depth = 384
 
     val numMemPorts = 0
     val io = new GenericAcceleratorIF(numMemPorts, p){
