@@ -12,14 +12,11 @@ using namespace std;
 bool Run_ImageQueue(WrapperRegDriver * platform, int imageList[3072]) {
     TestImageQueue q(platform);
 
-    int num_its = 1;
     unsigned int pixel_adder[8];
-    for(int j = 0; j < num_its; j++){
     for(int i = 0; i < 3072; i += 8) {
 
         while (q.get_full()) {
             //Waits for space in the Queue.
-            goto slutt;
         }
         for(int p = 0; p < 8; p++) {
             pixel_adder[p] = imageList[i+p];
@@ -34,12 +31,10 @@ bool Run_ImageQueue(WrapperRegDriver * platform, int imageList[3072]) {
         q.set_input_data_7(pixel_adder[7]);
         q.set_input_pulse(1);
         q.set_input_pulse(0);
-    }
-    slutt: ;
-    }
+        }
 }
 
-
+//Må legge til bilde fra Kamera som et argument i main.
 int main()
 {
   int x;

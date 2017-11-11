@@ -12,6 +12,7 @@ class ImageQueue(dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends Mo
         val output_data = Decoupled(Vec.fill(vec_fill_size){UInt(OUTPUT, dataWidth)})
         val full = Bool(OUTPUT)
         val empty = Bool(OUTPUT)
+
     }
 
     val pulse_reg = Reg(next=io.input_pulse)
@@ -20,7 +21,7 @@ class ImageQueue(dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends Mo
     queue.io.enq.valid := !io.input_pulse && pulse_reg
     queue.io.enq.bits := io.input_data
     
-    io.full := (queue.io.count === UInt(queueDepth - 1))
+    io.full := (queue.io.count === UInt(queueDepth -1))
     io.empty := (queue.io.count === UInt(0))
 
     io.output_data <> queue.io.deq
@@ -30,10 +31,10 @@ class ImageQueue(dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends Mo
         printf("ADD: (%d, %d, %d, %d, %d, %d, %d, %d), len: %d\n", queue.io.enq.bits(0), queue.io.enq.bits(1), queue.io.enq.bits(2), queue.io.enq.bits(3), queue.io.enq.bits(4),
             queue.io.enq.bits(5), queue.io.enq.bits(6), queue.io.enq.bits(7), queue.io.count)
     }
-
+    /* Printsetning som printer alle bits i en dequeue-operasjon når valid og ready er true.
     when(queue.io.deq.valid && queue.io.deq.ready){
-        printf("POP: (%d, %d, %d, %d, %d, %d, %d, %d), len: %d\n", queue.io.enq.bits(0), queue.io.enq.bits(1), queue.io.enq.bits(2), queue.io.enq.bits(3), queue.io.enq.bits(4),
-            queue.io.enq.bits(5), queue.io.enq.bits(6), queue.io.enq.bits(7), queue.io.count)
+        printf("POP: (%d, %d, %d, %d, %d, %d, %d, %d), len: %d\n", queue.io.deq.bits(0), queue.io.deq.bits(1), queue.io.deq.bits(2), queue.io.deq.bits(3), queue.io.deq.bits(4),
+            queue.io.deq.bits(5), queue.io.deq.bits(6), queue.io.deq.bits(7), queue.io.count)
     }
-    //printf("EV: %b EB: %d, len: %d\n", queue.io.enq.valid, queue.io.enq.bits(0), queue.io.count)
+    */
 }
