@@ -112,8 +112,7 @@ object MainObj {
     "TestBRAMMasked" -> {p => new TestBRAMMasked(p)},
     "TestMemLatency" -> {p => new TestMemLatency(p)},
     "TestGather" -> {p => new TestGather(p)},
-    "TestFullyConnected" -> {p => new TestFullyConnected(p)},
-    "TestDotProduct" -> {p => new TestDotProduct(p)}
+    "TestBipolar" -> {p => new TestBipolar(p)}
   )
 
   val platformMap: PlatformMap = Map(
