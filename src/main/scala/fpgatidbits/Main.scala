@@ -116,7 +116,8 @@ object MainObj {
     "TestDotProduct" -> {p => new TestDotProduct(p)},
     "TestRFQueue" -> {p => new TestRFQueue(p, 32, 64, 8)},
     "TestQueue" -> {p => new TestQueue(p, 32, 384, 8)},
-    "TestImageQueue" -> {p => new TestImageQueue(p)}
+    "TestImageQueue" -> {p => new TestImageQueue(p)},
+    "TestOutputQueue" -> {p => new TestOutputQueue(p)}
   )
 
   val platformMap: PlatformMap = Map(

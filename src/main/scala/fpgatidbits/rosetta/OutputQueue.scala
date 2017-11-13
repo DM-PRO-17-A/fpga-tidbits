@@ -20,7 +20,7 @@ class OutputQueue(dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends M
     val output_ready = (!io.output_pulse && pulse_reg)
     val output_reg = Reg(init=Vec.fill(vec_fill_size){UInt(width=dataWidth)})
 
-    queue.io.enq <> io.input_data
+    queue.io.enq <> io.output_data
     io.empty := (queue.io.count === UInt(0))
 
     queue.io.deq.ready := output_ready
