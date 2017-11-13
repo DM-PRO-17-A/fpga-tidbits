@@ -6,27 +6,28 @@ import fpgatidbits.ocm._
 
 class OutputQueue(dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends Module {
     val io = new Bundle {
-        val input_data = Decoupled(Vec.fill(vec_fill_size){UInt(INPUT, width=dataWidth)})
+        val input_data = Flipped(Decoupled(Vec.fill(vec_fill_size){SInt(INPUT, width=dataWidth)}))
+
         val output_data = Vec.fill(vec_fill_size){UInt(OUTPUT, dataWidth)}
         val output_pulse = Bool(INPUT)
+
         val empty = Bool(OUTPUT)
 
     }
 
-    val pulse_reg = Reg(next=io.output_pulse) 
-    val queue = Module(new FPGAQueue(Vec.fill(vec_fill_size){UInt(width=dataWidth)}, queueDepth))
-    
+    val pulse_reg = Reg(next=io.output_pulse)
+    val queue = Module(new FPGAQueue(Vec.fill(vec_fill_size){SInt(width=dataWidth)}, queueDepth))
+    val output_ready = (!io.output_pulse && pulse_reg)
+    val output_reg = Reg(init=Vec.fill(vec_fill_size){SInt(width=dataWidth)})
 
-    val output_ready = (!io.output_pulse && pulse_reg) // true if going  high to low
-    val output_reg = Reg(init=Vec.fill(vec_fill_size){UInt(width=dataWidth)})
-
-    io.empty := (queue.io.count === UInt(0))
+    queue.io.enq <> io.input_data
+    io.empty := (queue.io.count === SInt(0))
 
     queue.io.deq.ready := output_ready
 
     when(output_ready && !io.empty){
         io.output_data := queue.io.deq.bits
-        output_reg := queue.io.deq.bits // setter verdien som et buffer hvis den ikke er klar? Hvorfor? reset?
+        output_reg := queue.io.deq.bits
     } .otherwise {
         io.output_data := output_reg
     }
