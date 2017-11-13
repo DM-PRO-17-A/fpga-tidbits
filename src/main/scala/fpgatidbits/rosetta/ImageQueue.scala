@@ -10,6 +10,7 @@ class ImageQueue(dataWidth: Int, queueDepth: Int, vec_fill_size: Int) extends Mo
         val input_pulse = Bool(INPUT)
 
         val output_data = Decoupled(Vec.fill(vec_fill_size){UInt(OUTPUT, dataWidth)})
+        val output_pulse = Bool(INPUT)
         val full = Bool(OUTPUT)
         val empty = Bool(OUTPUT)
 

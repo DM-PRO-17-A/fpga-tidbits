@@ -14,8 +14,11 @@ class TestOutputQueue (p: PlatformWrapperParams) extends GenericAccelerator(p) {
     val io = new GenericAcceleratorIF(numMemPorts, p){
         val input_data = Vec.fill(vec_size){UInt(INPUT, width=data_width)}
         val input_pulse = Bool(INPUT)
+        val output_data = Vec.fill(vec_size){UInt(OUTPUT, width=data_width)}
+        val output_pulse = Bool(INPUT)
 
         val full = Bool(OUTPUT)
+        val empty = Bool(OUTPUT)
     }
 
     val queue = Module(new ImageQueue(data_width, queue_depth, vec_size)).io
@@ -23,6 +26,7 @@ class TestOutputQueue (p: PlatformWrapperParams) extends GenericAccelerator(p) {
     queue.input_data <> io.input_data
     queue.input_pulse <> io.input_pulse
     queue.full <> io.full
+    queue.empty <> io.empty
 
     val pulse_reg = Reg(next=io.input_pulse)
     val counter = Reg(init=UInt(width=10))
@@ -40,5 +44,5 @@ class TestOutputQueue (p: PlatformWrapperParams) extends GenericAccelerator(p) {
     }.otherwise{
         queue.output_data.ready := Bool(false)
     }
-    printf("V: %b R: %b D: %d \n", queue.output_data.valid, queue.output_data.ready, queue.output_data.bits(0))
+    //printf("V: %b R: %b D: %d \n", queue.output_data.valid, queue.output_data.ready, queue.output_data.bits(0))
 }
