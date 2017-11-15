@@ -9,6 +9,7 @@ using namespace std;
 #include <iomanip>
 #include <cmath>
 #include <cstdlib>
+#include <unistd.h>
 
 
 int* Run_OutputQueue(WrapperRegDriver * platform) {
@@ -131,26 +132,50 @@ int main()
     };
     // #############################################################################################
     //Write to file
-    ofstream myfile;
-  
-  myfile.open ("./SoftmaxOutput.txt");
-  if (myfile.is_open()) // Leser og setter inn tallene i en array
-    {
+  static bool runOnce= true;
+while(1){
+    ifstream myfile;
+    myfile.open ("./SoftmaxOutput.txt");
+    if (myfile.is_open()) // Leser og setter inn tallene i en array
+    { 
       string line;
-    for (int i =0; i < 43; i = i+1){ 
-      std::stringstream stream;
-      stream << fixed << setprecision(15) << out[i];
-      string s = stream.str();
+      getline(myfile,line);
+      if (line.length() < 10){
+        cout << 2;
+        myfile.close();
+        ofstream myfile;
+        myfile.open ("./SoftmaxOutput.txt");
+        if (runOnce){ cout << "Writing to file...."; runOnce=false;};
+        line = "";
+        cout << 3;
+        for (int i =0; i < 43; i = i+1){ 
+          cout << 4;
+          std::stringstream stream;
+          stream << fixed << setprecision(15) << out[i];
+          string s = stream.str();
           if (i < 42) {
             line += s + ",";
-          }
-    }; 
-    myfile << line;
-  }
+          };
+        }; 
+        myfile << line;
+        cout << 5;
+        myfile.close();
+      }else{
+        if(runOnce == false){
+          cout << 6;
+          cout << "waiting for empty file..";
+          runOnce=true;
+        };
+        
+
+      }
+      
+      usleep(1000);
+    }
     else cout << "Unable to open file 2";
+  }
 
-
-  myfile.close();
+  
 
   
     return 0;
